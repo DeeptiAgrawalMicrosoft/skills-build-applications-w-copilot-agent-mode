@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +21,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-uh!7_f!txuv#r&+tbxl$*qwz)6q^q^@aqtb=7^fjv5j^nv9s@y"
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "django-insecure-uh!7_f!txuv#r&+tbxl$*qwz)6q^q^@aqtb=7^fjv5j^nv9s@y")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DJANGO_DEBUG", "True") == "True"
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "*").split(",")
 
 
 # Application definition
@@ -79,9 +80,9 @@ WSGI_APPLICATION = "octofit_tracker.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "djongo",
-        "NAME": "octofit_db",
-        "PORT": 27017,
-        "HOST": "localhost",
+        "NAME": os.getenv("MONGO_DB_NAME", "octofit_db"),
+        "PORT": int(os.getenv("MONGO_DB_PORT", 27017)),
+        "HOST": os.getenv("MONGO_DB_HOST", "localhost"),
     }
 }
 
@@ -128,7 +129,7 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Enable CORS
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = os.getenv("CORS_ALLOW_ALL_ORIGINS", "True") == "True"
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = [
     "*",
@@ -136,3 +137,6 @@ CORS_ALLOW_HEADERS = [
 CORS_ALLOW_METHODS = [
     "*",
 ]
+
+if not CORS_ALLOW_ALL_ORIGINS:
+    CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
